@@ -1,373 +1,305 @@
 <?php
 
     /*!
-	 * POCKET v3.7
+	 * POCKET v3.4
 	 *
 	 * http://www.droidoxy.com
 	 * support@droidoxy.com
 	 *
-	 * Copyright 2020 DroidOXY ( http://www.droidoxy.com )
+	 * Copyright 2019 DroidOXY ( http://www.droidoxy.com )
 	 */
 
-    
-	$pagename = 'profile';
-	$container = '';
-    
-    include_once("includes/user.inc.php");
-    include_once("../admin/controller/controller-profile.php");
 
-?><!DOCTYPE html>
-<?php include_once 'includes/vendor_comments.php'; ?>
-<html lang="en">
+	$pagename = 'admin-profile';
+	$container = 'settings';
+	
+	include_once("core/init.inc.php");
+	
+	$data = false;
 
-	<!-- begin::Head -->
-	<head>
-	    <?php include_once 'includes/dashboard_title.php'; ?>
-	    
-	    <?php include_once 'includes/global_header_scripts.php'; ?>
-	    
-	   <div id="gb-widget-4718" style="bottom: 21px; right: 23px; opacity: 1; transition: opacity 0.5s ease 0s; box-sizing: border-box; direction: ltr; position: fixed !important; z-index: 16000160 !important;"><div><div class="q8c6tt-2 jxPOhn"><a href="https://www.facebook.com/groups/2649280855173311" target="_blank" color="#4dc247" id="" class="q8c6tt-0 jlzTty"><svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 122.88 122.88" style="
-    width: 60px;
-    border-radius: 40px;
-"><defs><style>.cls-1{fill:#3b5998;}.cls-1,.cls-2{fill-rule:evenodd;}.cls-2{fill:#fff;}</style></defs><title>Gift Freee Facebook</title><path class="cls-1" d="M25.2,0H97.68a25.27,25.27,0,0,1,25.2,25.2V97.68a25.27,25.27,0,0,1-25.2,25.2H25.2A25.27,25.27,0,0,1,0,97.68V25.2A25.27,25.27,0,0,1,25.2,0Z"></path><path class="cls-2" d="M69.27,35.31H82.34V19.63H69.27A18.32,18.32,0,0,0,51,37.92v7.84H40.54V61.44H51v41.81H66.67V61.44H79.73l2.61-15.68H66.67V37.92a2.64,2.64,0,0,1,2.6-2.61Z"></path></svg></a></div></div></div>
-	    
-	</head>
-	<!-- end::Head -->
+    if (!admin::isSession()) {
 
-	<!-- begin::Body -->
-	<body class="kt-page--loading-enabled kt-page--loading kt-quick-panel--right kt-demo-panel--right kt-offcanvas-panel--right kt-header--fixed kt-header--minimize-menu kt-header-mobile--fixed kt-subheader--enabled kt-subheader--transparent kt-page--loading">
-
-	    <?php include_once 'includes/dashboard_page_loader.php'; ?>
-
-		<!-- begin:: Page -->
+        header("Location: index.php");
 		
-		<!-- begin:: Header Mobile -->
-	    <?php include_once 'includes/dashboard_header_mobile.php'; ?>
-	    
-	    <!-- end:: Header Mobile -->
-	    
-		<div class="kt-grid kt-grid--hor kt-grid--root">
-			<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--ver kt-page">
-				<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor kt-wrapper" id="kt_wrapper">
-				    
-					<!-- begin:: Header -->
-				    <?php include_once 'includes/dashboard_header.php'; ?>
-					<!-- end:: Header -->
+    }else if(!empty($_POST) && !APP_DEMO){
+		
+		$old_pass = $_POST['old_pass'];
+		$new_pass = $_POST['new_pass'];
+		$cnf_pass = $_POST['cnf_pass'];
+		
+		$data = true;
+		
+		$settings = new settings($dbo);
+		$acid = admin::getAdminID();
+		
+		$result = $settings->changepass($acid, $old_pass, $new_pass, $cnf_pass);
+		
+		if($result == 420){
+			
+			$error = true;
+			$error_message = "Admin Not Found";
+			
+		}elseif($result == 422){
+			
+			$error = true;
+			$error_message = "New Password & Confirm Password do not Match";
+			
+		}elseif($result == 425){
+			
+			$error = true;
+			$error_message = "Incorrect Old Password";
+			
+		}elseif($result == 424){
+			
+			$error = true;
+			$error_message = "There was some issue changing the password";
+			
+		}elseif($result == 1){
+			
+			$error = false;
+			$error_message = "Password Changed Successfully";
+			
+		}
+		
+	}
+	
+	$acid = admin::getAdminID();
+	$configs = new functions($dbo);
+	$configs->updateConfigs(time(),'LAST_ADMIN_ACCESS');
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta content="ie=edge" http-equiv="x-ua-compatible" />
+	<?php include_once 'inc/title.php'; ?>
+
+    <!--Preloader-CSS-->
+    <link rel="stylesheet" href="./assets/plugins/preloader/preloader.css" />
+
+    <!--bootstrap-4-->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+
+    <!--Custom Scroll-->
+    <link rel="stylesheet" href="./assets/plugins/customScroll/jquery.mCustomScrollbar.min.css" />
+    <!--Font Icons-->
+    <link rel="stylesheet" href="./assets/icons/simple-line/css/simple-line-icons.css" />
+    <link rel="stylesheet" href="./assets/icons/dripicons/dripicons.css" />
+    <link rel="stylesheet" href="./assets/icons/ionicons/css/ionicons.min.css" />
+    <link rel="stylesheet" href="./assets/icons/eightyshades/eightyshades.css" />
+    <link rel="stylesheet" href="./assets/icons/fontawesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="./assets/icons/foundation/foundation-icons.css" />
+    <link rel="stylesheet" href="./assets/icons/metrize/metrize.css" />
+    <link rel="stylesheet" href="./assets/icons/typicons/typicons.min.css" />
+    <link rel="stylesheet" href="./assets/icons/weathericons/css/weather-icons.min.css" />
+
+    <!--Date-range-->
+    <link rel="stylesheet" href="./assets/plugins/date-range/daterangepicker.css" />
+    <!--Drop-Zone-->
+    <link rel="stylesheet" href="./assets/plugins/dropzone/dropzone.css" />
+    <!--Full Calendar-->
+    <link rel="stylesheet" href="./assets/plugins/full-calendar/fullcalendar.min.css" />
+    <!--Normalize Css-->
+    <link rel="stylesheet" href="./assets/css/normalize.css" />
+    <!--Main Css-->
+    <link rel="stylesheet" href="./assets/css/main.css" />
+    <!--Custom Css-->
+    <link rel="stylesheet" href="./assets/css/custom.css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+
+<?php include_once 'inc/preloader.php'; ?>
+
+<?php include_once 'inc/navigation.php'; ?>
+
+<!--Page Container-->
+<section class="page-container">
+    <div class="page-content-wrapper">
+        <!--Header Fixed-->
+		<?php include_once 'inc/header-fixed.php'; ?>
+
+        <!--Main Content-->
+        <div class="content sm-gutter">
+            <div class="container-fluid padding-25 sm-padding-10">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="section-title">
+                            <h4>Admin Profile</h4>
+                        </div>
+                    </div>
+					<?php if(APP_DEMO) { include_once 'inc/demo-notice.php'; } ?>
 					
-					<div class="kt-body kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor kt-grid--stretch" id="kt_body">
-						<div class="kt-content kt-content--fit-top  kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor" id="kt_content">
-
-							<!-- begin:: Subheader -->
-							<div class="kt-subheader   kt-grid__item" id="kt_subheader">
-								<div class="kt-container ">
-									<div class="kt-subheader__main">
-										<h3 class="kt-subheader__title">
-											Dashboard </h3>
-										<div class="kt-subheader__breadcrumbs">
-											<a href="index.php" class="kt-subheader__breadcrumbs-home"><i class="flaticon2-shelter"></i></a>
-											<span class="kt-subheader__breadcrumbs-separator"></span>
-											<a href="index.php" class="kt-subheader__breadcrumbs-link">Dashboard</a>
-											<span class="kt-subheader__breadcrumbs-separator"></span>
-											<a href="profile.php" class="kt-subheader__breadcrumbs-link">Profile</a>
-										</div>
-									</div>
-									<div class="kt-subheader__toolbar">
-										<div class="kt-subheader__wrapper">
-											<a href="redeem.php" class="btn kt-subheader__btn-secondary">
-												Redeem
-											</a>
-										</div>
-									</div>
+					<!-- START MAIN CONTENT HERE -->
+					
+					<div class="col-md-4">
+                        <div class="block mb-4" style="box-shadow: 0 7px 15px var(--primary-alpha-Dot25); transition: all 0.3s;">
+							<div class="user-profile-menu bg-white">
+								<div class="avatar-info">
+									<img class="profile-img rounded-circle" id="adminImage" align="middle" src="images/<?php echo $configs->getConfig('ADMIN_IMAGE'); ?>" alt="profile image" style="width: 168px; height: 168px;" />
+									<h4 class="name"><?php echo $helper->getAdminFullName($acid); ?></h4>
+									<p class="designation">Admin</p>
 								</div>
 							</div>
-							<!-- end:: Subheader -->
-
-							<!-- begin:: Content -->
-							<div class="kt-container  kt-grid__item kt-grid__item--fluid">
-								
-								<!--Begin::Notices -->
-								<?php include_once("../admin/controller/notices.php"); ?>
-								<!--End::Notices -->
-							    
-								<!--Begin:: Profile -->
-								<div class="kt-grid kt-grid--desktop kt-grid--ver kt-grid--ver-desktop kt-app">
-								
-									<!--Begin:: App Aside Mobile Toggle-->
-									<button class="kt-app__aside-close" id="kt_user_profile_aside_close">
-										<i class="la la-close"></i>
-									</button>
-									
-									<!--End:: App Aside Mobile Toggle-->
-									
-									<!--Begin:: App Aside-->
-									<div class="kt-grid__item kt-app__toggle kt-app__aside" id="kt_user_profile_aside">
-
-										<!--begin:: Widgets/Applications/User/Profile-->
-										<div class="kt-portlet ">
-											<div class="kt-portlet__head  kt-portlet__head--noborder">
-												<div class="kt-portlet__head-label">
-													<h3 class="kt-portlet__head-title">&nbsp;</h3>
-												</div>
-											</div>
-											<div class="kt-portlet__body kt-portlet__body--fit-y">
-
-												<!--begin::Widget -->
-												<div class="kt-widget kt-widget--user-profile-1">
-													<div class="kt-widget__head">
-														<div class="kt-widget__content">
-															<div class="kt-widget__section">
-																<a href="#" class="kt-widget__username">
-																	<?php echo esc_attr($req_user_info['fullname']); ?>
-																	<i class="flaticon2-correct kt-font-success"></i>
-																</a>
-																<span class="kt-widget__subtitle">
-																	Member Since <?php echo esc_attr(date('d M, Y', $req_user_info['regtime'])) ; ?>
-																</span>
-															</div>
-															<div class="kt-widget__action">
-																<button type="button" class="btn btn-success btn-sm">Active</button>
-															</div>
-														</div>
-													</div>
-													<div class="kt-widget__body">
-														<div class="kt-widget__content">
-															<div class="kt-widget__info">
-																<span class="kt-widget__label">Email :</span>
-																<a href="#" class="kt-widget__data"><?php echo esc_attr($req_user_info['email']); ?></a>
-															</div>
-															<div class="kt-widget__info">
-																<span class="kt-widget__label">Phone :</span>
-																<a href="#" class="kt-widget__data"><?php echo esc_attr($req_user_info['mobile']); ?></a>
-															</div>
-														</div>
-														<div class="kt-widget__items">
-															<a href="profile.php" class="kt-widget__item kt-widget__item--active">
-																<span class="kt-widget__section">
-																	<span class="kt-widget__icon">
-																		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
-																			<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-																				<polygon points="0 0 24 0 24 24 0 24" />
-																				<path d="M12,11 C9.790861,11 8,9.209139 8,7 C8,4.790861 9.790861,3 12,3 C14.209139,3 16,4.790861 16,7 C16,9.209139 14.209139,11 12,11 Z" fill="#000000" fill-rule="nonzero" opacity="0.3" />
-																				<path d="M3.00065168,20.1992055 C3.38825852,15.4265159 7.26191235,13 11.9833413,13 C16.7712164,13 20.7048837,15.2931929 20.9979143,20.2 C21.0095879,20.3954741 20.9979143,21 20.2466999,21 C16.541124,21 11.0347247,21 3.72750223,21 C3.47671215,21 2.97953825,20.45918 3.00065168,20.1992055 Z" fill="#000000" fill-rule="nonzero" />
-																			</g>
-																		</svg> </span>
-																	<span class="kt-widget__desc">
-																		Account Information
-																	</span>
-																</span>
-															</a>
-															
-															<a href="change-password.php" class="kt-widget__item ">
-																<span class="kt-widget__section">
-																	<span class="kt-widget__icon">
-																		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
-																			<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-																				<rect x="0" y="0" width="24" height="24" />
-																				<path d="M4,4 L11.6314229,2.5691082 C11.8750185,2.52343403 12.1249815,2.52343403 12.3685771,2.5691082 L20,4 L20,13.2830094 C20,16.2173861 18.4883464,18.9447835 16,20.5 L12.5299989,22.6687507 C12.2057287,22.8714196 11.7942713,22.8714196 11.4700011,22.6687507 L8,20.5 C5.51165358,18.9447835 4,16.2173861 4,13.2830094 L4,4 Z" fill="#000000" opacity="0.3" />
-																				<path d="M12,11 C10.8954305,11 10,10.1045695 10,9 C10,7.8954305 10.8954305,7 12,7 C13.1045695,7 14,7.8954305 14,9 C14,10.1045695 13.1045695,11 12,11 Z" fill="#000000" opacity="0.3" />
-																				<path d="M7.00036205,16.4995035 C7.21569918,13.5165724 9.36772908,12 11.9907452,12 C14.6506758,12 16.8360465,13.4332455 16.9988413,16.5 C17.0053266,16.6221713 16.9988413,17 16.5815,17 C14.5228466,17 11.463736,17 7.4041679,17 C7.26484009,17 6.98863236,16.6619875 7.00036205,16.4995035 Z" fill="#000000" opacity="0.3" />
-																			</g>
-																		</svg> </span>
-																	<span class="kt-widget__desc">
-																		Change Password
-																	</span>
-																</span>
-															</a>
-															<a href="transactions.php" class="kt-widget__item">
-																<span class="kt-widget__section">
-																	<span class="kt-widget__icon">
-																		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
-																			<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-																				<rect x="0" y="0" width="24" height="24" />
-																				<rect fill="#000000" x="4" y="5" width="16" height="3" rx="1.5" />
-																				<path d="M5.5,15 L18.5,15 C19.3284271,15 20,15.6715729 20,16.5 C20,17.3284271 19.3284271,18 18.5,18 L5.5,18 C4.67157288,18 4,17.3284271 4,16.5 C4,15.6715729 4.67157288,15 5.5,15 Z M5.5,10 L12.5,10 C13.3284271,10 14,10.6715729 14,11.5 C14,12.3284271 13.3284271,13 12.5,13 L5.5,13 C4.67157288,13 4,12.3284271 4,11.5 C4,10.6715729 4.67157288,10 5.5,10 Z" fill="#000000" opacity="0.3" />
-																			</g>
-																		</svg>
-																	</span>
-																	<span class="kt-widget__desc">My Transactions</span>
-																</span>
-															</a>
-															<a href="refer.php" class="kt-widget__item">
-																<span class="kt-widget__section">
-																	<span class="kt-widget__icon">
-																		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
-																			<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-																				<rect x="0" y="0" width="24" height="24"></rect>
-																				<path d="M2.56066017,10.6819805 L4.68198052,8.56066017 C5.26776695,7.97487373 6.21751442,7.97487373 6.80330086,8.56066017 L8.9246212,10.6819805 C9.51040764,11.267767 9.51040764,12.2175144 8.9246212,12.8033009 L6.80330086,14.9246212 C6.21751442,15.5104076 5.26776695,15.5104076 4.68198052,14.9246212 L2.56066017,12.8033009 C1.97487373,12.2175144 1.97487373,11.267767 2.56066017,10.6819805 Z M14.5606602,10.6819805 L16.6819805,8.56066017 C17.267767,7.97487373 18.2175144,7.97487373 18.8033009,8.56066017 L20.9246212,10.6819805 C21.5104076,11.267767 21.5104076,12.2175144 20.9246212,12.8033009 L18.8033009,14.9246212 C18.2175144,15.5104076 17.267767,15.5104076 16.6819805,14.9246212 L14.5606602,12.8033009 C13.9748737,12.2175144 13.9748737,11.267767 14.5606602,10.6819805 Z" fill="#000000" opacity="0.3"></path>
-																				<path d="M8.56066017,16.6819805 L10.6819805,14.5606602 C11.267767,13.9748737 12.2175144,13.9748737 12.8033009,14.5606602 L14.9246212,16.6819805 C15.5104076,17.267767 15.5104076,18.2175144 14.9246212,18.8033009 L12.8033009,20.9246212 C12.2175144,21.5104076 11.267767,21.5104076 10.6819805,20.9246212 L8.56066017,18.8033009 C7.97487373,18.2175144 7.97487373,17.267767 8.56066017,16.6819805 Z M8.56066017,4.68198052 L10.6819805,2.56066017 C11.267767,1.97487373 12.2175144,1.97487373 12.8033009,2.56066017 L14.9246212,4.68198052 C15.5104076,5.26776695 15.5104076,6.21751442 14.9246212,6.80330086 L12.8033009,8.9246212 C12.2175144,9.51040764 11.267767,9.51040764 10.6819805,8.9246212 L8.56066017,6.80330086 C7.97487373,6.21751442 7.97487373,5.26776695 8.56066017,4.68198052 Z" fill="#000000"></path>
-																			</g>
-																		</svg>
-																	</span>
-																	<span class="kt-widget__desc">My Referral Link</span>
-																</span>
-															</a>
-														</div>
-													</div>
-												</div>
-
-												<!--end::Widget -->
-											</div>
-										</div>
-
-										<!--end:: Widgets/Applications/User/Profile-->
-									</div>
-									
-									<!--End:: App Aside-->
-									
-									<!--Begin:: App Content-->
-									<div class="kt-grid__item kt-grid__item--fluid kt-app__content">
-										<div class="row">
-											<div class="col-xl-12">
-												<div class="kt-portlet">
-													<div class="kt-portlet__head">
-														<div class="kt-portlet__head-label">
-															<h3 class="kt-portlet__head-title">Account Information <small>update your personal informaiton</small></h3>
-														</div>
-													</div>
-													<form method="post" action="" class="kt-form kt-form--label-right">
-														<div class="kt-portlet__body">
-															<div class="kt-section kt-section--first">
-																<div class="kt-section__body">
-                                                                    
-                                                                    <?php if($error){ ?>
-                                                                    
-                                                                    <div class="alert alert-solid-danger alert-bold show kt-margin-t-20 kt-margin-b-40" role="alert">
-                                                                        <div class="alert-icon"><i class="fa fa-exclamation-triangle"></i></div>
-                                                                        <div class="alert-text"><?php echo esc_attr($error_message); ?></div>
-                                                                        <div class="alert-close">
-                                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                                                <span aria-hidden="true"><i class="la la-close"></i></span>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                    
-                                                                    <?php } ?>
-                                                                    
-                                                                    <?php if($success){ ?>
-                                                                    
-                                                                    <div class="alert alert-solid-success alert-bold show kt-margin-t-20 kt-margin-b-40" role="alert">
-                                                                        <div class="alert-icon"><i class="fa fa-check"></i></div>
-                                                                        <div class="alert-text"><?php echo esc_attr($error_message); ?></div>
-                                                                        <div class="alert-close">
-                                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                                                <span aria-hidden="true"><i class="la la-close"></i></span>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                    
-                                                                    <?php } ?>
-                                                                    
-																	<div class="row">
-																		<label class="col-xl-3"></label>
-																		<div class="col-lg-9 col-xl-6">
-																			<h3 class="kt-section__title kt-section__title-sm">Account Information :</h3>
-																		</div>
-																	</div>
-																	
-																	<div class="form-group row">
-																		<label class="col-xl-3 col-lg-3 col-form-label">Username</label>
-																		<div class="col-lg-9 col-xl-6">
-																			<div class="input-group" data-skin="dark" data-toggle="kt-tooltip" data-placement="top" title="" data-original-title="Usernames Cannot be changed.">
-																				<div class="input-group-prepend"><span class="input-group-text"><i class="la la-underline"></i></span></div>
-																				<input class="form-control" type="text" value="<?php echo esc_attr($req_user_info['login']); ?>" disabled>
-																			</div>
-																			<span class="form-text text-muted">Need to change your username ? <a href="<?php echo esc_attr($configs->getConfig('APP_CONTACT_US_URL')); ?>" target="_blank" class="kt-link kt-font-sm kt-font-bold kt-margin-t-5">Contact us</a>.</span>
-																		</div>
-																	</div>
-																	
-																	<div class="form-group row">
-																		<label class="col-xl-3 col-lg-3 col-form-label">Referral Code</label>
-																		<div class="col-lg-9 col-xl-6">
-																			<div class="input-group" data-skin="dark" data-toggle="kt-tooltip" data-placement="top" title="" data-original-title="Referral Code Cannot be changed.">
-																				<div class="input-group-prepend"><span class="input-group-text"><i class="la la-chain"></i></span></div>
-																				<input class="form-control" type="text" value="<?php echo esc_attr($req_user_info['refer']); ?>" disabled>
-																			</div>
-																			<span class="form-text text-muted">Need to change your referral code ? <a href="<?php echo esc_attr($configs->getConfig('APP_CONTACT_US_URL')); ?>" target="_blank" class="kt-link kt-font-sm kt-font-bold kt-margin-t-5">Contact us</a>.</span>
-
-																		</div>
-																	</div>
-																	
-																	<div class="row">
-																		<label class="col-xl-3"></label>
-																		<div class="col-lg-9 col-xl-6">
-																			<h3 class="kt-section__title kt-section__title-sm">Contact Info:</h3>
-																		</div>
-																	</div>
-																	
-																	<div class="form-group row">
-																		<label class="col-xl-3 col-lg-3 col-form-label">Full Name</label>
-																		<div class="col-lg-9 col-xl-6">
-																			<div class="input-group">
-																				<div class="input-group-prepend"><span class="input-group-text"><i class="la la-user"></i></span></div>
-																				<input type="text" class="form-control" name="full_name" value="<?php echo esc_attr($req_user_info['fullname']); ?>" placeholder="Full Name" required>
-																			</div>
-																		</div>
-																	</div>
-																	
-																	<div class="form-group row">
-																		<label class="col-xl-3 col-lg-3 col-form-label">Email Address</label>
-																		<div class="col-lg-9 col-xl-6">
-																			<div class="input-group">
-																				<div class="input-group-prepend"><span class="input-group-text"><i class="la la-at"></i></span></div>
-																				<input type="email" class="form-control" name="email" value="<?php echo esc_attr($req_user_info['email']); ?>" placeholder="Email" required>
-																			</div>
-																		</div>
-																	</div>
-																	
-																	<div class="form-group row">
-																		<label class="col-xl-3 col-lg-3 col-form-label">Contact Phone</label>
-																		<div class="col-lg-9 col-xl-6">
-																			<div class="input-group">
-																				<div class="input-group-prepend"><span class="input-group-text"><i class="la la-phone"></i></span></div>
-																				<input type="number" name="mobile" class="form-control" value="<?php echo esc_attr($req_user_info['mobile']); ?>" placeholder="Phone" required>
-																			</div>
-																			<span class="form-text text-muted">We'll never share your phone number with anyone.</span>
-																		</div>
-																	</div>
-																	
-																</div>
-															</div>
-														</div>
-                                                        
-														<div class="kt-portlet__foot">
-															<div class="kt-form__actions">
-																<div class="row">
-																	<div class="col-lg-10 col-xl-10">
-																	</div>
-																	<div class="col-lg-2 col-xl-2">
-																		<button type="submit" class="btn btn-primary">Save Changes</button>
-																	</div>
-																</div>
-															</div>
-														</div>
-                                                        
-													</form>
-												</div>
-											</div>
-										</div>
-									</div>
-									
-									<!--End:: App Content-->
-								</div>
-								<!--End:: Profile -->
-								
-							</div>
-							<!-- end:: Content -->
+							
 						</div>
 					</div>
-                    
-                    <?php include_once 'includes/dashboard_footer.php'; ?>
-                    
-				</div>
-			</div>
-		</div>
+					
+                    <div class="col-md-8">
+                        <div class="block form-block mb-4">
+                            <div class="block-heading">
+                                <h5>Admin Details</h5>
+                            </div>
 
-		<!-- end:: Page -->
-		
-	    <?php include_once 'includes/dashboard_scroll_to_top.php'; ?>
-		
-	    <?php include_once 'includes/global_footer_scripts.php'; ?>
-	</body>
+                            <form action="process/profile.php" method="post" enctype="multipart/form-data" class="horizontal-form"/>
+							
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <label class="col-md-3">Admin Name</label>
+                                        <div class="col-md-9">
+                                            <input class="form-control" name="admin_name" placeholder="Full name" value="<?php echo $helper->getAdminFullName($acid); ?>" type="text" autocomplete="off" required=""/>
+                                        </div>
+                                    </div>
+                                </div>
+							
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <label class="col-md-3">Admin Image</label>
+                                        <div class="col-md-9">
+                                            <div class="input-group">
+                                                <input id="admin_image_name" class="form-control" type="text" name="admin_image_name" value="<?php echo $configs->getConfig('ADMIN_IMAGE'); ?>" placeholder="Choose Image" style="background: #e9ecef; " autocomplete="off" disabled/>
+												<span class="input-group-addon text-dark"><label for="file-upload" class="custom-file-upload"><i class="ion-ios-folder"></i><span>Change Image</span></label>
+													<input id="file-upload" onchange="readURL(this);" name="admin_image" accept="image/png, image/jpeg, image/jpg" type="file"/>
+												</span>
+											</div>
+                                        </div>
+                                    </div>
+                                </div>
 
-	<!-- end::Body -->
+                                <hr />
+                                <button class="btn btn-primary mr-0 pull-right" type="submit" value="upload">Update Details</button>
+								<br><br>
+                            </form>
+                        </div>
+						
+                        <div class="block form-block mb-4">
+                            <div class="block-heading">
+                                <h5>Change Password</h5>
+                            </div>
+							
+							<?php if ($data){ ?>
+						
+								<div class="alert <?php if($error){ echo "alert-danger"; }else{ echo "alert-success"; } ?>">
+									<?php echo $error_message; ?>
+								</div>
+							
+							<?php } ?>
+
+                            <form action="" method="post" />
+                                
+                                <div class="form-group">
+                                    <label>Old Password</label>
+                                    <input class="form-control" placeholder="Old Password" type="password" name="old_pass" required=""/>
+                                </div>
+								
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label>New Password</label>
+                                        <input class="form-control" placeholder="New Password" type="password" name="new_pass" required=""/>
+                                    </div>
+									
+                                    <div class="form-group col-md-6">
+                                        <label>Confirm New Password</label>
+                                        <input class="form-control" placeholder="Confirm New password" type="password" name="cnf_pass" required=""/>
+                                    </div>
+									
+                                </div>
+
+                                <hr />
+                                <button class="btn btn-primary mr-0 pull-right" type="submit">Change Password</button>
+								<br><br>
+                            </form>
+                        </div>
+                    </div>
+					
+					
+					<!-- END MAIN CONTENT HERE -->
+					<?php include_once 'inc/support.php'; ?>
+					
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	<?php include_once 'inc/footer-fixed.php'; ?>
+
+</section>
+
+<!--Jquery-->
+<script type="text/javascript" src="./assets/js/jquery-3.2.1.min.js"></script>
+<!--Bootstrap Js-->
+<script type="text/javascript" src="./assets/js/popper.min.js"></script>
+<script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
+<!--Modernizr Js-->
+<script type="text/javascript" src="./assets/js/modernizr.custom.js"></script>
+
+<!--Morphin Search JS-->
+<script type="text/javascript" src="./assets/plugins/morphin-search/classie.js"></script>
+<script type="text/javascript" src="./assets/plugins/morphin-search/morphin-search.js"></script>
+<!--Morphin Search JS-->
+<script type="text/javascript" src="./assets/plugins/preloader/pathLoader.js"></script>
+<script type="text/javascript" src="./assets/plugins/preloader/preloader-main.js"></script>
+
+<!--Chart js-->
+<script type="text/javascript" src="./assets/plugins/charts/Chart.min.js"></script>
+
+<!--Sparkline Chart Js-->
+<script type="text/javascript" src="./assets/plugins/sparkline/jquery.sparkline.min.js"></script>
+<script type="text/javascript" src="./assets/plugins/sparkline/jquery.charts-sparkline.js"></script>
+
+<!--Custom Scroll-->
+<script type="text/javascript" src="./assets/plugins/customScroll/jquery.mCustomScrollbar.min.js"></script>
+<!--Sortable Js-->
+<script type="text/javascript" src="./assets/plugins/sortable2/sortable.min.js"></script>
+<!--DropZone Js-->
+<script type="text/javascript" src="./assets/plugins/dropzone/dropzone.js"></script>
+<!--Date Range JS-->
+<script type="text/javascript" src="./assets/plugins/date-range/moment.min.js"></script>
+<script type="text/javascript" src="./assets/plugins/date-range/daterangepicker.js"></script>
+<!--CK Editor JS-->
+<script type="text/javascript" src="./assets/plugins/ckEditor/ckeditor.js"></script>
+<!--Data-Table JS-->
+<script type="text/javascript" src="./assets/plugins/data-tables/datatables.min.js"></script>
+<!--Editable JS-->
+<script type="text/javascript" src="./assets/plugins/editable/editable.js"></script>
+<!--Full Calendar JS-->
+<script type="text/javascript" src="./assets/plugins/full-calendar/fullcalendar.min.js"></script>
+
+<!--- Main JS -->
+<script src="./assets/js/main.js"></script>
+<script type="text/javascript">
+
+
+function readURL(input) {
+	
+	if (input.files && input.files[0]) {
+		
+		var reader = new FileReader();
+		
+		reader.onload = function (e) {
+			$('#adminImage')
+				.attr('src', e.target.result)
+				.width(168)
+				.height(168);
+			};
+		reader.readAsDataURL(input.files[0]);
+		$('#admin_image_name').val(input.files[0].name);
+		$('#admin_image_name').prop('disabled', false);
+	}
+}
+
+</script>
+
+</body>
 </html>

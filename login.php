@@ -1,164 +1,185 @@
 <?php
 
     /*!
-	 * POCKET v3.7
+	 * POCKET v3.4
 	 *
 	 * http://www.droidoxy.com
 	 * support@droidoxy.com
 	 *
-	 * Copyright 2020 DroidOXY ( http://www.droidoxy.com )
+	 * Copyright 2019 DroidOXY ( http://www.droidoxy.com )
 	 */
-    
-    include_once("../admin/core/init.inc.php");
-    include_once("../admin/controller/controller-login.php");
+	 
+	include_once("core/init.inc.php");
 
-?><!DOCTYPE html>
-<?php include_once 'includes/vendor_comments.php'; ?>
+    if (admin::isSession()) {
+
+        header("Location: admin.php");
+    }
+	
+	$user_username = '';
+
+    $error = false;
+    $error_message = '';
+	$configs = new functions($dbo);
+
+    if (!empty($_POST)) {
+
+        $user_username = isset($_POST['user_username']) ? $_POST['user_username'] : '';
+        $user_password = isset($_POST['user_password']) ? $_POST['user_password'] : '';
+        $token = isset($_POST['authenticity_token']) ? $_POST['authenticity_token'] : '';
+
+        $user_username = helper::clearText($user_username);
+        $user_password = helper::clearText($user_password);
+
+        $user_username = helper::escapeText($user_username);
+        $user_password = helper::escapeText($user_password);
+
+        if (helper::getAuthenticityToken() !== $token) {
+
+            $error = true;
+            $error_message = 'Some Error, Try Again';
+        }
+
+        if (!$error) {
+
+            $access_data = array();
+
+            $admin = new admin($dbo);
+            $access_data = $admin->signin($user_username, $user_password);
+
+            if ($access_data['error'] === false){
+
+                $clientId = 0; // Desktop version
+
+                admin::createAccessToken();
+
+                admin::setSession($access_data['accountId'], admin::getAccessToken());
+				
+				header("Location: admin.php");
+
+            } else {
+
+                $error = true;
+                $error_message = 'Incorrect login or password.';
+            }
+        }
+    }
+
+    helper::newAuthenticityToken();
+
+?>
+<!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta content="ie=edge" http-equiv="x-ua-compatible" />
+	<?php include_once 'inc/title.php'; ?>
 
-	<!-- begin::Head -->
-	<head>
-	    <?php include_once 'includes/dashboard_title.php'; ?>
-	    
-	    <?php include_once 'includes/global_header_scripts.php'; ?>
-	    
-		<!--begin::Page Custom Styles(used by this page) -->
-		<link href="assets/css/pages/login/login.css" rel="stylesheet" type="text/css" />
-		<!--end::Page Custom Styles -->
-		
-	</head>
-	<!-- end::Head -->
+    <!--Preloader-CSS-->
+    <link rel="stylesheet" href="./assets/plugins/preloader/preloader.css" />
 
-	<!-- begin::Body -->
-	<body class="kt-page--loading-enabled kt-page--loading kt-quick-panel--right kt-demo-panel--right kt-offcanvas-panel--right kt-header--fixed kt-header--minimize-menu kt-header-mobile--fixed kt-subheader--enabled kt-subheader--transparent kt-page--loading">
+    <!--bootstrap-4-->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
 
-	    <?php include_once 'includes/dashboard_page_loader.php'; ?>
+    <!--Custom Scroll-->
+    <link rel="stylesheet" href="./assets/plugins/customScroll/jquery.mCustomScrollbar.min.css" />
+    <!--Font Icons-->
+    <link rel="stylesheet" href="./assets/icons/simple-line/css/simple-line-icons.css" />
+    <link rel="stylesheet" href="./assets/icons/dripicons/dripicons.css" />
+    <link rel="stylesheet" href="./assets/icons/ionicons/css/ionicons.min.css" />
+    <link rel="stylesheet" href="./assets/icons/eightyshades/eightyshades.css" />
+    <link rel="stylesheet" href="./assets/icons/fontawesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="./assets/icons/foundation/foundation-icons.css" />
+    <link rel="stylesheet" href="./assets/icons/metrize/metrize.css" />
+    <link rel="stylesheet" href="./assets/icons/typicons/typicons.min.css" />
+    <link rel="stylesheet" href="./assets/icons/weathericons/css/weather-icons.min.css" />
+    <!--Main Css-->
+    <link rel="stylesheet" href="./assets/css/main.css" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
+<body>
 
-		<!-- begin:: Page -->
-		<div class="kt-grid kt-grid--ver kt-grid--root kt-page">
-			<div class="kt-grid kt-grid--hor kt-grid--root  kt-login kt-login--v1" id="kt_login">
-				<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--desktop kt-grid--ver-desktop kt-grid--hor-tablet-and-mobile">
+<?php include_once 'inc/preloader.php'; ?>
 
-					<!--begin::Aside-->
-					<div class="login-aside kt-grid__item kt-grid__item--order-tablet-and-mobile-2 kt-grid kt-grid--hor kt-login__aside">
-						<div class="kt-grid__item">
-							<a href="index.php" class="kt-login__logo">
-								<img src="../admin/images/<?php echo esc_attr($configs->getConfig('SITE_LOGO_LIGHT')); ?>">
-							</a>
-						</div>
-						<div class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--ver">
-							<div class="kt-grid__item kt-grid__item--middle">
-								<h3 class="kt-login__title">Welcome to <?php echo esc_attr($APP_NAME); ?>!</h3>
-								<h4 class="kt-login__subtitle"><?php echo esc_attr($APP_DESC); ?></h4>
-							</div>
-						</div>
-						<div class="kt-grid__item">
-							<div class="kt-login__info">
-								<div class="kt-login__copyright">
-									&copy 2020 <?php echo esc_attr($APP_NAME); ?>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<!--end::Aside-->
-					
-					<!--begin::Content-->
-					<div class="kt-grid__item kt-grid__item--fluid  kt-grid__item--order-tablet-and-mobile-1  kt-login__wrapper">
-					    <!--begin::Body-->
-						<div class="kt-login__body">
-							<!--begin::Signin-->
-							<div class="kt-login__form">
-								<div class="kt-login__title">
-									<h3>Sign In</h3>
-								</div>
-								
-								<?php if ($error){ ?>
-								
-								<div class="alert alert-danger">
-								    <?php echo esc_attr($error_message); ?>
-								</div>
-								
-								<?php } ?>
-								
-								<div id="signin_process"></div>
-								<div id="signin_layout">
-								    
-								    <!--begin::Form-->
-                                    <form class="kt-form" name="signin_form" id="needs-validation kt_login_form" action="login.php" method="post" novalidate="novalidate">
-                                        <input autocomplete="off" type="hidden" id="authenticity_token" name="authenticity_token" value="<?php echo helper::getAuthenticityToken(); ?>">
-                                        <div class="form-group">
-                                            <input class="form-control" placeholder="Email or Username" id="user_username" autocomplete="off" maxlength="60" id="user_username" name="user_username" type="text" value="<?php echo esc_attr($user_username); ?>" required="">
-                                        </div>
-                                        <div class="form-group">
-                                            <input class="form-control" placeholder="Password" id="user_password" autocomplete="off" type="password" id="user_password" maxlength="20" name="user_password" required="">
-                                        </div>
-                                    
-                                        <!--begin::Action-->
-                                        <div class="kt-login__actions">
-                                            <a href="forgot-password.php" class="kt-link kt-login__link-forgot">
-                                                Forgot Password ?
-                                            </a>
-                                            <button type="submit" id="kt_login_signin_submit" class="btn btn-primary btn-elevate kt-login__btn-primary">Sign In</button>
-                                        </div>
-                                        <!--end::Action-->
-                                    </form>
-                                    <!--end::Form-->
-                                    
-                                    <!--begin::Divider-->
-                                    <div class="kt-login__divider">
-                                        <div class="kt-divider">
-                                            <span></span><span>OR</span><span></span>
-                                        </div>
-                                    </div>
-                                    <!--end::Divider-->
-                                    
-                                    <!--begin::Options-->
-                                    <div class="kt-login__options mb-4">
-                                        
-                                        <?php if($configs->getConfig('FACEBOOK_LOGIN_WEB')){ ?>
-                                        
-                                        <a href="../admin/controller/oauth.php?provider=Facebook" class="btn btn-primary kt-btn">
-                                            <i class="fab fa-facebook-f"></i>Facebook
-                                        </a>
-                                        
-                                        <?php }
-                                        if($configs->getConfig('GOOGLE_LOGIN_WEB')){ ?>
-                                        
-                                        <a href="../admin/controller/oauth.php?provider=Google" class="btn btn-danger kt-btn">
-                                            <i class="fab fa-google"></i>Google
-                                        </a>
-                                        
-                                        <?php } ?>
-                                        
-                                    </div>
-                                    <!--end::Options-->
-                                    
-                                </div>
-								
-								<!--begin::Register-->
-								<div class="form-bootom-text">
-								    <span class="kt-login__signup-label">Don't have an account yet?</span>&nbsp;&nbsp;
-								    <a href="register.php" class="kt-link kt-login__signup-link">Sign Up!</a>
-								</div>
-								<!--end::Register-->
-								
+<section style="background: url(assets/images/bg.jpg);background-size: cover">
+    <div class="height-100-vh bg-primary-trans">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="login-div">
+						
+						<?php if ($error){ ?>
+						
+							<div class="alert alert-danger">
+								<?php echo $error_message; ?>
 							</div>
 							
-							<!--end::Signin-->
-						</div>
-						
-						<!--end::Body-->
-					</div>
-					
-					<!--end::Content-->
-				</div>
-			</div>
-		</div>
-		<!-- end:: Page -->
-		
-		<?php include_once 'includes/global_footer_scripts.php'; ?>
-		
-	</body>
-	<!-- end::Body -->
+						<?php } ?>
+                        <p class="logo mb-1">Admin Login</p>
+                        <p class="mb-4" style="color: #a5b5c5">Sign into your <?php echo $configs->getConfig('APP_NAME'); ?> Dashboard</p>
+                        <form id="needs-validation" action="login.php" method="post" novalidate="" />
+                            <input autocomplete="off" type="hidden" name="authenticity_token" value="<?php echo helper::getAuthenticityToken(); ?>">
+							<div class="form-group">
+                                <label>Login</label>
+                                <input class="form-control input-lg" placeholder="Username" maxlength="24" id="user_username" name="user_username" type="text" value="<?php echo $user_username; ?>" required="" />
+                                <div class="invalid-feedback">This field is required.</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input class="form-control input-lg" autocomplete="off" placeholder="Password" type="password" id="user_password" maxlength="20" name="user_password" required="" />
+                                <div class="invalid-feedback">This field is required.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Sign In</button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!--Jquery-->
+<script type="text/javascript" src="./assets/js/jquery-3.2.1.min.js"></script>
+<!--Bootstrap Js-->
+<script type="text/javascript" src="./assets/js/popper.min.js"></script>
+<script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
+<!--Modernizr Js-->
+<script type="text/javascript" src="./assets/js/modernizr.custom.js"></script>
+
+<!--Morphin Search JS-->
+<script type="text/javascript" src="./assets/plugins/morphin-search/classie.js"></script>
+<!--Morphin Search JS-->
+<script type="text/javascript" src="./assets/plugins/preloader/pathLoader.js"></script>
+<script type="text/javascript" src="./assets/plugins/preloader/preloader-main.js"></script>
+
+<!--Chart js-->
+<script type="text/javascript" src="./assets/plugins/charts/Chart.min.js"></script>
+
+<!--Sparkline Chart Js-->
+<script type="text/javascript" src="./assets/plugins/sparkline/jquery.sparkline.min.js"></script>
+<script type="text/javascript" src="./assets/plugins/sparkline/jquery.charts-sparkline.js"></script>
+
+<!--Custom Scroll-->
+<script type="text/javascript" src="./assets/plugins/customScroll/jquery.mCustomScrollbar.min.js"></script>
+<!--Sortable Js-->
+<script type="text/javascript" src="./assets/plugins/sortable2/sortable.min.js"></script>
+<!--DropZone Js-->
+<script type="text/javascript" src="./assets/plugins/dropzone/dropzone.js"></script>
+<!--Date Range JS-->
+<script type="text/javascript" src="./assets/plugins/date-range/moment.min.js"></script>
+<script type="text/javascript" src="./assets/plugins/date-range/daterangepicker.js"></script>
+<!--CK Editor JS-->
+<script type="text/javascript" src="./assets/plugins/ckEditor/ckeditor.js"></script>
+<!--Data-Table JS-->
+<script type="text/javascript" src="./assets/plugins/data-tables/datatables.min.js"></script>
+<!--Editable JS-->
+<script type="text/javascript" src="./assets/plugins/editable/editable.js"></script>
+<!--Full Calendar JS-->
+<script type="text/javascript" src="./assets/plugins/full-calendar/fullcalendar.min.js"></script>
+
+<!--- Main JS -->
+<script src="./assets/js/main.js"></script>
+
+</body>
 </html>
